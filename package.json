@@ -10,11 +10,14 @@
   "scripts": {
     "dev": "tsx --watch src/index.ts",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "devDependencies": {
+    "@types/node": "^25.3.5",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@google/adk": "^0.4.0",

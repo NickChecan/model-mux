@@ -1,15 +1,4 @@
 import { BaseLlmConnection, LlmRequest, LlmResponse } from "@google/adk";
-import { OpenAIAdapter } from "./openai/openai-adapter.js";
-
-export abstract class AdapterFactory {
-    static createAdapter(model: string, baseUrl: string, headers: Record<string, string>, apiKey: string): BaseAdapter {
-        if (model.startsWith("gpt-"))
-            return new OpenAIAdapter(model, baseUrl, headers, apiKey);
-        // if (model.startsWith("claude-")) 
-        //     return new AnthropicAdapter(model, baseUrl, headers, apiKey);
-        throw new Error(`Unsupported model/provider: ${model}`);
-    }
-}
 
 interface AdapterInterface {
     stream(llmRequest: LlmRequest): AsyncGenerator<LlmResponse, void>;
@@ -27,6 +16,18 @@ export abstract class BaseAdapter implements AdapterInterface {
     ) { }
 
     protected mapInput(req: LlmRequest): string {
+        const contents = (req as any).contents;
+        if (Array.isArray(contents)) {
+            const text = contents
+                .flatMap((content: any) => content?.parts ?? [])
+                .map((part: any) => part?.text ?? "")
+                .join("");
+
+            if (text) {
+                return text;
+            }
+        }
+
         return (
             (req as any).input ??
             (req as any).prompt ??

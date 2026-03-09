@@ -1,5 +1,6 @@
 import { BaseLlm, BaseLlmConnection, LlmRequest, LlmResponse } from "@google/adk";
-import { AdapterFactory, BaseAdapter } from "./adapter.js";
+import { AdapterFactory } from "./adapter-factory.js";
+import { BaseAdapter } from "./adapter.js";
 
 export class ModelMux extends BaseLlm {
 

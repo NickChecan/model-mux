@@ -20,18 +20,29 @@ export class OpenAIAdapter extends BaseAdapter {
     }
 
     async *stream(llmRequest: LlmRequest): AsyncGenerator<LlmResponse, void> {
-        const stream = await this.client.responses.create({
-            model: this.model,
-            input: this.mapInput(llmRequest),
-            temperature: (llmRequest as any).temperature,
-            max_output_tokens: (llmRequest as any).maxTokens ?? (llmRequest as any).max_output_tokens,
-            stream: true,
-        });
+        let stream;
+        try {
+            stream = await this.client.responses.create({
+                model: this.model,
+                input: this.mapInput(llmRequest),
+                temperature: (llmRequest as any).temperature,
+                max_output_tokens: (llmRequest as any).maxTokens ?? (llmRequest as any).max_output_tokens,
+                stream: true,
+            });
+        } catch (error) {
+            throw new Error(
+                `OpenAI stream creation failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
 
         for await (const event of stream as any) {
             if (event.type === "response.output_text.delta" && event.delta) {
                 yield {
-                    content: [{ text: event.delta }],
+                    content: {
+                        role: "model",
+                        parts: [{ text: event.delta }],
+                    },
+                    partial: true,
                     raw: event,
                 } as unknown as LlmResponse;
             }
@@ -43,12 +54,19 @@ export class OpenAIAdapter extends BaseAdapter {
     }
 
     async generate(llmRequest: LlmRequest): Promise<LlmResponse> {
-        const response = await this.client.responses.create({
-            model: this.model,
-            input: this.mapInput(llmRequest),
-            temperature: (llmRequest as any).temperature,
-            max_output_tokens: (llmRequest as any).maxTokens ?? (llmRequest as any).max_output_tokens,
-        });
+        let response;
+        try {
+            response = await this.client.responses.create({
+                model: this.model,
+                input: this.mapInput(llmRequest),
+                temperature: (llmRequest as any).temperature,
+                max_output_tokens: (llmRequest as any).maxTokens ?? (llmRequest as any).max_output_tokens,
+            });
+        } catch (error) {
+            throw new Error(
+                `OpenAI response creation failed: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
 
         const text =
             (response as any).output_text ??
@@ -58,7 +76,10 @@ export class OpenAIAdapter extends BaseAdapter {
                 .join("");
 
         return {
-            content: [{ text }],
+            content: {
+                role: "model",
+                parts: [{ text }],
+            },
             raw: response,
         } as unknown as LlmResponse;
     }

@@ -1,5 +1,5 @@
 import { InMemorySessionService, LlmAgent, Runner, StreamingMode, isFinalResponse, stringifyContent } from "@google/adk";
-import { ModelMux } from "../../src/index.js";
+import { ModelMux } from "../../../src/index.js";
 import dotenv from 'dotenv';
 
 describe('setup openai', () => {

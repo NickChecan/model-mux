@@ -48,6 +48,14 @@ export class OpenAIAdapter extends BaseAdapter {
             }
 
             if (event.type === "response.completed") {
+                yield {
+                    content: {
+                        role: "model",
+                        parts: [{ text: "" }],
+                    },
+                    partial: false,
+                    raw: event,
+                } as unknown as LlmResponse;
                 return;
             }
         }

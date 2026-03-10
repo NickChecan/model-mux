@@ -327,7 +327,9 @@ describe("OpenAIAdapter", () => {
       }
 
       // Assert
-      expect(results).toHaveLength(1);
+      expect(results).toHaveLength(2);
+      expect(results[0]).toMatchObject({ partial: true });
+      expect(results[1]).toMatchObject({ partial: false });
     });
 
     it("should skip events that are not delta or completed", async () => {

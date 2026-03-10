@@ -10,12 +10,14 @@
   "scripts": {
     "dev": "tsx --watch src/index.ts",
     "build": "tsc",
-    "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@types/chance": "^1.1.7",
     "@types/node": "^25.3.5",
+    "@vitest/coverage-v8": "^4.0.18",
     "chance": "^1.1.13",
     "dotenv": "^17.3.1",
     "tsx": "^4.21.0",

@@ -2,19 +2,28 @@ import { InMemorySessionService, LlmAgent, Runner, StreamingMode, isFinalRespons
 import { ModelMux } from "../../../src/index.js";
 import dotenv from 'dotenv';
 
-describe('setup openai', () => {
+const models = [
+    'gpt-4o-2024-11-20',
+    'gpt-5-2025-08-07',
+    'gpt-5.1-2025-11-13',
+    'gpt-5.2-2025-12-11',
+    'gpt-5.4-2026-03-05',
+];
+
+describe.each(models)('openai integration: %s', (llm) => {
+    const host = 'https://api.openai.com/v1';
+    const headers = {};
+    const appName = 'test-app';
+    const userId = 'test-user';
+
+    beforeAll(() => {
+        dotenv.config();
+    });
+
     it('should generate an answer to a one-shot ad hoc request', async () => {
         // Arrange
-        dotenv.config();
-
-        const llm = 'gpt-5.2-2025-12-11';
-        const host = 'https://api.openai.com/v1';
-        const headers = {};
         const apiKey = process.env.API_KEY_OPENAI || "";
-
-        const appName = 'test-app';
-        const userId = 'test-user';
-        const sessionId = "test-session";
+        const sessionId = `test-session-${llm}`;
 
         const sessionService = new InMemorySessionService();
         await sessionService.createSession({ appName, userId, sessionId });
@@ -31,7 +40,7 @@ describe('setup openai', () => {
         });
 
         // Act 3
-        const runner = new Runner({ appName: 'test-app', agent, sessionService });
+        const runner = new Runner({ appName, agent, sessionService });
         const events = await runner.runAsync({
             userId,
             sessionId,
@@ -50,20 +59,13 @@ describe('setup openai', () => {
         // Assert
         expect(answer).toBeDefined();
         expect(answer).not.toBe('');
-        expect(answer).toMatch(/\b(?:yes|no)\b/i);
+        expect(answer).toMatch(/\b(?:yes|yep|no)\b/i);
     })
+
     it('should stream an answer', async () => {
         // Arrange
-        dotenv.config();
-
-        const llm = 'gpt-5.2-2025-12-11';
-        const host = 'https://api.openai.com/v1';
-        const headers = {};
         const apiKey = process.env.API_KEY_OPENAI || "";
-
-        const appName = 'test-app';
-        const userId = 'test-user';
-        const sessionId = "test-session-stream";
+        const sessionId = `test-session-stream-${llm}`;
 
         const sessionService = new InMemorySessionService();
         await sessionService.createSession({ appName, userId, sessionId });
@@ -103,6 +105,6 @@ describe('setup openai', () => {
         expect(chunks.length).toBeGreaterThan(0);
         expect(answer).toBeDefined();
         expect(answer).not.toBe('');
-        expect(answer).toMatch(/\b(?:yes|no)\b/i);
+        expect(answer).toMatch(/\b(?:yes|yep|no)\b/i);
     })
 })

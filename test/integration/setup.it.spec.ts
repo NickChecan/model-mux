@@ -1,4 +1,4 @@
-import { InMemorySessionService, LlmAgent, Runner, isFinalResponse, stringifyContent } from "@google/adk";
+import { InMemorySessionService, LlmAgent, Runner, StreamingMode, isFinalResponse, stringifyContent } from "@google/adk";
 import { ModelMux } from "../../src/index.js";
 import dotenv from 'dotenv';
 
@@ -31,7 +31,7 @@ describe('setup openai', () => {
         });
 
         // Act 3
-        const runner = new Runner({appName: 'test-app', agent, sessionService});
+        const runner = new Runner({ appName: 'test-app', agent, sessionService });
         const events = await runner.runAsync({
             userId,
             sessionId,
@@ -48,6 +48,59 @@ describe('setup openai', () => {
         }
 
         // Assert
+        expect(answer).toBeDefined();
+        expect(answer).not.toBe('');
+        expect(answer).toMatch(/\b(?:yes|no)\b/i);
+    })
+    it('should stream an answer', async () => {
+        // Arrange
+        dotenv.config();
+
+        const llm = 'gpt-5.2-2025-12-11';
+        const host = 'https://api.openai.com/v1';
+        const headers = {};
+        const apiKey = process.env.API_KEY_OPENAI || "";
+
+        const appName = 'test-app';
+        const userId = 'test-user';
+        const sessionId = "test-session-stream";
+
+        const sessionService = new InMemorySessionService();
+        await sessionService.createSession({ appName, userId, sessionId });
+
+        // Act 1
+        const model = new ModelMux(llm, host, headers, apiKey);
+
+        // Act 2
+        const agent = new LlmAgent({
+            name: 'test-agent',
+            description: 'An agent for testing purposes',
+            instruction: 'Return "yes" or "no", nothing else.',
+            model: model,
+        });
+
+        // Act 3
+        const runner = new Runner({ appName, agent, sessionService });
+        const events = await runner.runAsync({
+            userId,
+            sessionId,
+            newMessage: {
+                role: 'user',
+                parts: [{ text: 'Is this thing working?' }],
+            },
+            runConfig: { streamingMode: StreamingMode.SSE },
+        });
+
+        // Act 4
+        const chunks: string[] = [];
+        for await (const event of events) {
+            const text = stringifyContent(event).trim();
+            if (text) chunks.push(text);
+        }
+        const answer = chunks.join('');
+
+        // Assert
+        expect(chunks.length).toBeGreaterThan(0);
         expect(answer).toBeDefined();
         expect(answer).not.toBe('');
         expect(answer).toMatch(/\b(?:yes|no)\b/i);

@@ -2,8 +2,8 @@ import { InMemorySessionService, LlmAgent, Runner, isFinalResponse, stringifyCon
 import { ModelMux } from "../../src/index.js";
 import dotenv from 'dotenv';
 
-describe('Setup', () => {
-    it('should run setup successfully', async () => {
+describe('setup openai', () => {
+    it('should generate an answer to a one-shot ad hoc request', async () => {
         // Arrange
         dotenv.config();
 
@@ -26,7 +26,7 @@ describe('Setup', () => {
         const agent = new LlmAgent({
             name: 'test-agent',
             description: 'An agent for testing purposes',
-            instruction: 'Return true for "yes" or false for "no", nothing else.',
+            instruction: 'Return "yes" or "no", nothing else.',
             model: model,
         });
 
@@ -50,6 +50,6 @@ describe('Setup', () => {
         // Assert
         expect(answer).toBeDefined();
         expect(answer).not.toBe('');
-        // expect(/^(true|false)$/i.test(answer)).toBe(true);
+        expect(answer).toMatch(/\b(?:yes|no)\b/i);
     })
 })

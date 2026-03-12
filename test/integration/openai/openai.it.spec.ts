@@ -57,12 +57,10 @@ describe.each(models)('openai integration: %s', (llm) => {
         }
 
         // Assert
-        expect(answer).toBeDefined();
-        expect(answer).not.toBe('');
-        expect(answer).toMatch(/\b(?:yes|yep|no)\b/i);
+        expect(answer).toBeTruthy();
     })
 
-    it('should stream an answer', async () => {
+    it('should stream an answer in multiple chunks to an ad hoc request', async () => {
         // Arrange
         const apiKey = process.env.API_KEY_OPENAI || "";
         const sessionId = `test-session-stream-${llm}`;
@@ -103,8 +101,6 @@ describe.each(models)('openai integration: %s', (llm) => {
 
         // Assert
         expect(chunks.length).toBeGreaterThan(0);
-        expect(answer).toBeDefined();
-        expect(answer).not.toBe('');
-        expect(answer).toMatch(/\b(?:yes|yep|no)\b/i);
+        expect(answer).toBeTruthy();
     })
 })

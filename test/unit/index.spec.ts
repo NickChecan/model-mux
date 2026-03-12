@@ -1,15 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { BaseLlmConnection, LlmRequest, LlmResponse } from "@google/adk";
-import { ModelMux } from "../../src/index.js";
-import { AdapterFactory } from "../../src/adapter-factory.js";
-import { BaseAdapter } from "../../src/adapter.js";
-import Chance from "chance";
+import type { BaseLlmConnection, LlmRequest, LlmResponse } from '@google/adk';
+import Chance from 'chance';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { AdapterFactory } from '../../src/adapter-factory.js';
+import type { BaseAdapter } from '../../src/adapter.js';
+import { ModelMux } from '../../src/index.js';
 
-vi.mock("../../src/adapter-factory.js", () => ({
+
+vi.mock('../../src/adapter-factory.js', () => ({
   AdapterFactory: { createAdapter: vi.fn() },
 }));
 
-describe("ModelMux", () => {
+describe('ModelMux', () => {
   const chance = new Chance();
   const fakeAdapter = {
     generate: vi.fn(),
@@ -32,8 +33,8 @@ describe("ModelMux", () => {
     apiKey = chance.string();
   });
 
-  describe("constructor", () => {
-    it("should pass model, baseUrl, headers, and apiKey to AdapterFactory.createAdapter", () => {
+  describe('constructor', () => {
+    it('should pass model, baseUrl, headers, and apiKey to AdapterFactory.createAdapter', () => {
       // Act
       new ModelMux(model, baseUrl, headers, apiKey);
 
@@ -43,8 +44,8 @@ describe("ModelMux", () => {
     });
   });
 
-  describe("generateContentAsync", () => {
-    it("should yield a single response when stream is false", async () => {
+  describe('generateContentAsync', () => {
+    it('should yield a single response when stream is false', async () => {
       // Arrange
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
@@ -62,7 +63,7 @@ describe("ModelMux", () => {
       expect(results).toEqual([mockResponse]);
     });
 
-    it("should yield a single response when stream is undefined", async () => {
+    it('should yield a single response when stream is undefined', async () => {
       // Arrange
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
@@ -80,7 +81,7 @@ describe("ModelMux", () => {
       expect(results).toEqual([mockResponse]);
     });
 
-    it("should pass llmRequest to adapter.generate when stream is false", async () => {
+    it('should pass llmRequest to adapter.generate when stream is false', async () => {
       // Arrange
       const llmRequest = { prompt: chance.sentence() } as unknown as LlmRequest;
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
@@ -97,7 +98,7 @@ describe("ModelMux", () => {
       expect(fakeAdapter.generate).toHaveBeenCalledWith(llmRequest);
     });
 
-    it("should delegate to adapter.stream when stream is true", async () => {
+    it('should delegate to adapter.stream when stream is true', async () => {
       // Arrange
       const chunk1 = { text: chance.sentence() } as unknown as LlmResponse;
       const chunk2 = { text: chance.sentence() } as unknown as LlmResponse;
@@ -123,7 +124,7 @@ describe("ModelMux", () => {
       expect(results).toEqual([chunk1, chunk2]);
     });
 
-    it("should pass llmRequest to adapter.stream when stream is true", async () => {
+    it('should pass llmRequest to adapter.stream when stream is true', async () => {
       // Arrange
       const llmRequest = { prompt: chance.sentence() } as unknown as LlmRequest;
 
@@ -144,7 +145,7 @@ describe("ModelMux", () => {
       expect(fakeAdapter.stream).toHaveBeenCalledWith(llmRequest);
     });
 
-    it("should yield no results when stream returns nothing", async () => {
+    it('should yield no results when stream returns nothing', async () => {
       // Arrange
       async function* emptyStream(): AsyncGenerator<LlmResponse, void> {
         // yields nothing
@@ -164,7 +165,7 @@ describe("ModelMux", () => {
       expect(results).toEqual([]);
     });
 
-    it("should propagate errors from adapter.generate", async () => {
+    it('should propagate errors from adapter.generate', async () => {
       // Arrange
       const errorMessage = chance.sentence();
       vi.mocked(fakeAdapter.generate).mockRejectedValue(new Error(errorMessage));
@@ -179,7 +180,7 @@ describe("ModelMux", () => {
       }).rejects.toThrow(errorMessage);
     });
 
-    it("should propagate errors from adapter.stream", async () => {
+    it('should propagate errors from adapter.stream', async () => {
       // Arrange
       const errorMessage = chance.sentence();
 
@@ -199,7 +200,7 @@ describe("ModelMux", () => {
       }).rejects.toThrow(errorMessage);
     });
 
-    it("should not call adapter.stream when stream is false", async () => {
+    it('should not call adapter.stream when stream is false', async () => {
       // Arrange
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
@@ -216,8 +217,8 @@ describe("ModelMux", () => {
     });
   });
 
-  describe("connect", () => {
-    it("should delegate to adapter.connect and return the connection", async () => {
+  describe('connect', () => {
+    it('should delegate to adapter.connect and return the connection', async () => {
       // Arrange
       const llmRequest = { prompt: chance.sentence() } as unknown as LlmRequest;
       const mockConnection = { id: chance.guid() } as unknown as BaseLlmConnection;
@@ -234,7 +235,7 @@ describe("ModelMux", () => {
       expect(result).toBe(mockConnection);
     });
 
-    it("should propagate errors from adapter.connect", async () => {
+    it('should propagate errors from adapter.connect', async () => {
       // Arrange
       const errorMessage = chance.sentence();
       const llmRequest = { prompt: chance.sentence() } as unknown as LlmRequest;

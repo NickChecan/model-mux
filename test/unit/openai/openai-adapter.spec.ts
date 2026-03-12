@@ -3,7 +3,6 @@ import Chance from 'chance';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OpenAIAdapter } from '../../../src/openai/openai-adapter.js';
 
-
 const mockCreate = vi.fn();
 
 vi.mock('openai', () => {

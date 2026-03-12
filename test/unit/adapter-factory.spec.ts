@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AdapterFactory } from '../../src/adapter-factory.js';
 import { OpenAIAdapter } from '../../src/openai/openai-adapter.js';
 
-
 const mockOpenAIConstructor = vi.fn();
 
 vi.mock('../../src/openai/openai-adapter.js', () => {

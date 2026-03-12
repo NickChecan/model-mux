@@ -2,7 +2,6 @@ import type { BaseLlmConnection, LlmRequest, LlmResponse } from '@google/adk';
 import OpenAI from 'openai';
 import { BaseAdapter } from '../adapter.js';
 
-
 export class OpenAIAdapter extends BaseAdapter {
   private readonly client: OpenAI;
 

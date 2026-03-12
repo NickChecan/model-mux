@@ -5,7 +5,6 @@ import { AdapterFactory } from '../../src/adapter-factory.js';
 import type { BaseAdapter } from '../../src/adapter.js';
 import { ModelMux } from '../../src/index.js';
 
-
 vi.mock('../../src/adapter-factory.js', () => ({
   AdapterFactory: { createAdapter: vi.fn() },
 }));

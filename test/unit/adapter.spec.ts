@@ -135,66 +135,11 @@ describe('BaseAdapter', () => {
       expect(result).toBe(text1);
     });
 
-    it('should fall back to input when contents is not an array', () => {
+    it('should return empty string when contents has no text parts', () => {
       // Arrange
-      const inputText = chance.sentence();
-      const req = { input: inputText } as unknown as LlmRequest;
-
-      // Act
-      const result = adapter.exposedMapInput(req);
-
-      // Assert
-      expect(result).toBe(inputText);
-    });
-
-    it('should fall back to prompt when input is not present', () => {
-      // Arrange
-      const promptText = chance.sentence();
-      const req = { prompt: promptText } as unknown as LlmRequest;
-
-      // Act
-      const result = adapter.exposedMapInput(req);
-
-      // Assert
-      expect(result).toBe(promptText);
-    });
-
-    it('should prefer input over prompt when both are present', () => {
-      // Arrange
-      const inputText = chance.sentence();
-      const promptText = chance.sentence();
-      const req = { input: inputText, prompt: promptText } as unknown as LlmRequest;
-
-      // Act
-      const result = adapter.exposedMapInput(req);
-
-      // Assert
-      expect(result).toBe(inputText);
-    });
-
-    it('should fall back to messages when input and prompt are not present', () => {
-      // Arrange
-      const role1 = chance.word();
-      const content1 = chance.sentence();
-      const role2 = chance.word();
-      const content2 = chance.sentence();
       const req = {
-        messages: [
-          { role: role1, content: content1 },
-          { role: role2, content: content2 },
-        ],
+        contents: [{ parts: [{ notText: chance.word() }] }],
       } as unknown as LlmRequest;
-
-      // Act
-      const result = adapter.exposedMapInput(req);
-
-      // Assert
-      expect(result).toBe(`${role1}: ${content1}\n${role2}: ${content2}`);
-    });
-
-    it('should return empty string when no recognized fields are present', () => {
-      // Arrange
-      const req = {} as unknown as LlmRequest;
 
       // Act
       const result = adapter.exposedMapInput(req);
@@ -203,49 +148,17 @@ describe('BaseAdapter', () => {
       expect(result).toBe('');
     });
 
-    it('should fall back when contents is an array but produces no text', () => {
+    it('should return empty string when contents is empty', () => {
       // Arrange
-      const inputText = chance.sentence();
-      const req = {
-        contents: [{ parts: [{ notText: chance.word() }] }],
-        input: inputText,
-      } as unknown as LlmRequest;
-
-      // Act
-      const result = adapter.exposedMapInput(req);
-
-      // Assert
-      expect(result).toBe(inputText);
-    });
-
-    it('should fall back when contents is an empty array', () => {
-      // Arrange
-      const promptText = chance.sentence();
       const req = {
         contents: [],
-        prompt: promptText,
       } as unknown as LlmRequest;
 
       // Act
       const result = adapter.exposedMapInput(req);
 
       // Assert
-      expect(result).toBe(promptText);
-    });
-
-    it('should handle a single message in messages array', () => {
-      // Arrange
-      const role = chance.word();
-      const content = chance.sentence();
-      const req = {
-        messages: [{ role, content }],
-      } as unknown as LlmRequest;
-
-      // Act
-      const result = adapter.exposedMapInput(req);
-
-      // Assert
-      expect(result).toBe(`${role}: ${content}`);
+      expect(result).toBe('');
     });
   });
 });

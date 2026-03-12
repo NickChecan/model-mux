@@ -1,6 +1,7 @@
 import type { BaseAdapter } from './adapter.js';
 import { OpenAIAdapter } from './openai/openai-adapter.js';
 
+
 export abstract class AdapterFactory {
   static createAdapter(
     model: string,

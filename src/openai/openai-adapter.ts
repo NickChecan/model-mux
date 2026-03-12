@@ -2,6 +2,7 @@ import type { BaseLlmConnection, LlmRequest, LlmResponse } from '@google/adk';
 import OpenAI from 'openai';
 import { BaseAdapter } from '../adapter.js';
 
+
 export class OpenAIAdapter extends BaseAdapter {
   private readonly client: OpenAI;
 
@@ -20,8 +21,8 @@ export class OpenAIAdapter extends BaseAdapter {
       stream = await this.client.responses.create({
         model: this.model,
         input: this.mapInput(llmRequest),
-        temperature: (llmRequest as any).temperature,
-        max_output_tokens: (llmRequest as any).maxTokens ?? (llmRequest as any).max_output_tokens,
+        temperature: llmRequest.config?.temperature ?? undefined,
+        max_output_tokens: llmRequest.config?.maxOutputTokens ?? undefined,
         stream: true,
       });
     } catch (error) {
@@ -30,7 +31,7 @@ export class OpenAIAdapter extends BaseAdapter {
       );
     }
 
-    for await (const event of stream as any) {
+    for await (const event of stream) {
       if (event.type === 'response.output_text.delta' && event.delta) {
         yield {
           content: {
@@ -38,8 +39,7 @@ export class OpenAIAdapter extends BaseAdapter {
             parts: [{ text: event.delta }],
           },
           partial: true,
-          raw: event,
-        } as unknown as LlmResponse;
+        } satisfies LlmResponse;
       }
 
       if (event.type === 'response.completed') {
@@ -49,8 +49,7 @@ export class OpenAIAdapter extends BaseAdapter {
             parts: [{ text: '' }],
           },
           partial: false,
-          raw: event,
-        } as unknown as LlmResponse;
+        } satisfies LlmResponse;
         return;
       }
     }
@@ -62,8 +61,8 @@ export class OpenAIAdapter extends BaseAdapter {
       response = await this.client.responses.create({
         model: this.model,
         input: this.mapInput(llmRequest),
-        temperature: (llmRequest as any).temperature,
-        max_output_tokens: (llmRequest as any).maxTokens ?? (llmRequest as any).max_output_tokens,
+        temperature: llmRequest.config?.temperature ?? undefined,
+        max_output_tokens: llmRequest.config?.maxOutputTokens ?? undefined,
       });
     } catch (error) {
       throw new Error(
@@ -71,20 +70,12 @@ export class OpenAIAdapter extends BaseAdapter {
       );
     }
 
-    const text =
-      (response as any).output_text ??
-      ((response as any).output || [])
-        .flatMap((o: any) => o.content || [])
-        .map((c: any) => c.text ?? '')
-        .join('');
-
     return {
       content: {
         role: 'model',
-        parts: [{ text }],
+        parts: [{ text: response.output_text }],
       },
-      raw: response,
-    } as unknown as LlmResponse;
+    } satisfies LlmResponse;
   }
 
   async connect(llmRequest: LlmRequest): Promise<BaseLlmConnection> {

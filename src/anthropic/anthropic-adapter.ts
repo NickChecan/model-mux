@@ -1,6 +1,7 @@
 import type { BaseLlmConnection, LlmRequest, LlmResponse } from '@google/adk';
 import { BaseAdapter } from '../adapter.js';
 
+
 export class AnthropicAdapter extends BaseAdapter {
   async *stream(llmRequest: LlmRequest): AsyncGenerator<LlmResponse, void> {
     // Implementation for streaming responses from Anthropic

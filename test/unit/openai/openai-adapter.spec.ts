@@ -3,6 +3,7 @@ import Chance from 'chance';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OpenAIAdapter } from '../../../src/openai/openai-adapter.js';
 
+
 const mockCreate = vi.fn();
 
 vi.mock('openai', () => {
@@ -37,8 +38,11 @@ describe('OpenAIAdapter', () => {
       // Arrange
       const inputText = chance.sentence();
       const temperature = chance.floating({ min: 0, max: 2 });
-      const maxTokens = chance.integer({ min: 1, max: 4096 });
-      const llmRequest = { input: inputText, temperature, maxTokens } as unknown as LlmRequest;
+      const maxOutputTokens = chance.integer({ min: 1, max: 4096 });
+      const llmRequest = {
+        contents: [{ parts: [{ text: inputText }] }],
+        config: { temperature, maxOutputTokens },
+      } as unknown as LlmRequest;
       const outputText = chance.sentence();
       mockCreate.mockResolvedValue({ output_text: outputText });
 
@@ -51,55 +55,37 @@ describe('OpenAIAdapter', () => {
         model,
         input: inputText,
         temperature,
-        max_output_tokens: maxTokens,
+        max_output_tokens: maxOutputTokens,
       });
     });
 
-    it('should use max_output_tokens from request when maxTokens is not present', async () => {
+    it('should pass undefined for temperature and max_output_tokens when config is missing', async () => {
       // Arrange
       const inputText = chance.sentence();
-      const maxOutputTokens = chance.integer({ min: 1, max: 4096 });
       const llmRequest = {
+        contents: [{ parts: [{ text: inputText }] }],
+      } as unknown as LlmRequest;
+      mockCreate.mockResolvedValue({ output_text: chance.sentence() });
+
+      // Act
+      await adapter.generate(llmRequest);
+
+      // Assert
+      expect(mockCreate).toHaveBeenCalledWith({
+        model,
         input: inputText,
-        max_output_tokens: maxOutputTokens,
-      } as unknown as LlmRequest;
-      mockCreate.mockResolvedValue({ output_text: chance.sentence() });
-
-      // Act
-      await adapter.generate(llmRequest);
-
-      // Assert
-      expect(mockCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ max_output_tokens: maxOutputTokens }),
-      );
-    });
-
-    it('should prefer maxTokens over max_output_tokens from request', async () => {
-      // Arrange
-      const maxTokens = chance.integer({ min: 1, max: 4096 });
-      const maxOutputTokens = chance.integer({ min: 1, max: 4096 });
-      const llmRequest = {
-        input: chance.sentence(),
-        maxTokens,
-        max_output_tokens: maxOutputTokens,
-      } as unknown as LlmRequest;
-      mockCreate.mockResolvedValue({ output_text: chance.sentence() });
-
-      // Act
-      await adapter.generate(llmRequest);
-
-      // Assert
-      expect(mockCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ max_output_tokens: maxTokens }),
-      );
+        temperature: undefined,
+        max_output_tokens: undefined,
+      });
     });
 
     it('should return response with text from output_text', async () => {
       // Arrange
       const outputText = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
-      const rawResponse = { output_text: outputText };
-      mockCreate.mockResolvedValue(rawResponse);
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
+      mockCreate.mockResolvedValue({ output_text: outputText });
 
       // Act
       const result = await adapter.generate(llmRequest);
@@ -110,94 +96,15 @@ describe('OpenAIAdapter', () => {
           role: 'model',
           parts: [{ text: outputText }],
         },
-        raw: rawResponse,
-      });
-    });
-
-    it('should extract text from output[].content[].text when output_text is missing', async () => {
-      // Arrange
-      const text1 = chance.sentence();
-      const text2 = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
-      const rawResponse = {
-        output: [{ content: [{ text: text1 }, { text: text2 }] }],
-      };
-      mockCreate.mockResolvedValue(rawResponse);
-
-      // Act
-      const result = await adapter.generate(llmRequest);
-
-      // Assert
-      expect(result).toEqual({
-        content: {
-          role: 'model',
-          parts: [{ text: text1 + text2 }],
-        },
-        raw: rawResponse,
-      });
-    });
-
-    it('should return empty text when output_text and output are both missing', async () => {
-      // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
-      const rawResponse = {};
-      mockCreate.mockResolvedValue(rawResponse);
-
-      // Act
-      const result = await adapter.generate(llmRequest);
-
-      // Assert
-      expect(result).toEqual({
-        content: {
-          role: 'model',
-          parts: [{ text: '' }],
-        },
-        raw: rawResponse,
-      });
-    });
-
-    it('should handle output entries with missing content gracefully', async () => {
-      // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
-      const rawResponse = { output: [{}] };
-      mockCreate.mockResolvedValue(rawResponse);
-
-      // Act
-      const result = await adapter.generate(llmRequest);
-
-      // Assert
-      expect(result).toEqual({
-        content: {
-          role: 'model',
-          parts: [{ text: '' }],
-        },
-        raw: rawResponse,
-      });
-    });
-
-    it('should handle content entries with missing text by defaulting to empty string', async () => {
-      // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
-      const rawResponse = { output: [{ content: [{ notText: chance.word() }] }] };
-      mockCreate.mockResolvedValue(rawResponse);
-
-      // Act
-      const result = await adapter.generate(llmRequest);
-
-      // Assert
-      expect(result).toEqual({
-        content: {
-          role: 'model',
-          parts: [{ text: '' }],
-        },
-        raw: rawResponse,
       });
     });
 
     it('should wrap and rethrow errors from client.responses.create', async () => {
       // Arrange
       const errorMessage = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
       mockCreate.mockRejectedValue(new Error(errorMessage));
 
       // Act & Assert
@@ -209,7 +116,9 @@ describe('OpenAIAdapter', () => {
     it('should stringify non-Error thrown values', async () => {
       // Arrange
       const errorValue = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
       mockCreate.mockRejectedValue(errorValue);
 
       // Act & Assert
@@ -220,7 +129,9 @@ describe('OpenAIAdapter', () => {
 
     it('should not include stream option in create call', async () => {
       // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
       mockCreate.mockResolvedValue({ output_text: chance.sentence() });
 
       // Act
@@ -237,8 +148,11 @@ describe('OpenAIAdapter', () => {
       // Arrange
       const inputText = chance.sentence();
       const temperature = chance.floating({ min: 0, max: 2 });
-      const maxTokens = chance.integer({ min: 1, max: 4096 });
-      const llmRequest = { input: inputText, temperature, maxTokens } as unknown as LlmRequest;
+      const maxOutputTokens = chance.integer({ min: 1, max: 4096 });
+      const llmRequest = {
+        contents: [{ parts: [{ text: inputText }] }],
+        config: { temperature, maxOutputTokens },
+      } as unknown as LlmRequest;
 
       async function* emptyStream() {}
       mockCreate.mockResolvedValue(emptyStream());
@@ -254,17 +168,16 @@ describe('OpenAIAdapter', () => {
         model,
         input: inputText,
         temperature,
-        max_output_tokens: maxTokens,
+        max_output_tokens: maxOutputTokens,
         stream: true,
       });
     });
 
-    it('should use max_output_tokens from request when maxTokens is not present', async () => {
+    it('should pass undefined for temperature and max_output_tokens when config is missing', async () => {
       // Arrange
-      const maxOutputTokens = chance.integer({ min: 1, max: 4096 });
+      const inputText = chance.sentence();
       const llmRequest = {
-        input: chance.sentence(),
-        max_output_tokens: maxOutputTokens,
+        contents: [{ parts: [{ text: inputText }] }],
       } as unknown as LlmRequest;
 
       async function* emptyStream() {}
@@ -276,16 +189,22 @@ describe('OpenAIAdapter', () => {
       }
 
       // Assert
-      expect(mockCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ max_output_tokens: maxOutputTokens }),
-      );
+      expect(mockCreate).toHaveBeenCalledWith({
+        model,
+        input: inputText,
+        temperature: undefined,
+        max_output_tokens: undefined,
+        stream: true,
+      });
     });
 
     it('should yield responses for response.output_text.delta events', async () => {
       // Arrange
       const delta1 = chance.sentence();
       const delta2 = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
 
       const event1 = { type: 'response.output_text.delta', delta: delta1 };
       const event2 = { type: 'response.output_text.delta', delta: delta2 };
@@ -308,19 +227,19 @@ describe('OpenAIAdapter', () => {
       expect(results[0]).toEqual({
         content: { role: 'model', parts: [{ text: delta1 }] },
         partial: true,
-        raw: event1,
       });
       expect(results[1]).toEqual({
         content: { role: 'model', parts: [{ text: delta2 }] },
         partial: true,
-        raw: event2,
       });
     });
 
     it('should stop yielding when response.completed event is received', async () => {
       // Arrange
       const delta = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
 
       async function* fakeStream() {
         yield { type: 'response.output_text.delta', delta };
@@ -345,7 +264,9 @@ describe('OpenAIAdapter', () => {
     it('should skip events that are not delta or completed', async () => {
       // Arrange
       const delta = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
 
       async function* fakeStream() {
         yield { type: 'response.created' };
@@ -366,13 +287,14 @@ describe('OpenAIAdapter', () => {
       expect(results[0]).toEqual({
         content: { role: 'model', parts: [{ text: delta }] },
         partial: true,
-        raw: { type: 'response.output_text.delta', delta },
       });
     });
 
     it('should not yield for delta events where delta is falsy', async () => {
       // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
 
       async function* fakeStream() {
         yield { type: 'response.output_text.delta', delta: '' };
@@ -394,7 +316,9 @@ describe('OpenAIAdapter', () => {
 
     it('should yield nothing when stream has no events', async () => {
       // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
 
       async function* emptyStream() {}
       mockCreate.mockResolvedValue(emptyStream());
@@ -413,7 +337,9 @@ describe('OpenAIAdapter', () => {
     it('should wrap and rethrow errors from client.responses.create', async () => {
       // Arrange
       const errorMessage = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
       mockCreate.mockRejectedValue(new Error(errorMessage));
 
       // Act & Assert
@@ -427,7 +353,9 @@ describe('OpenAIAdapter', () => {
     it('should stringify non-Error thrown values from create', async () => {
       // Arrange
       const errorValue = chance.sentence();
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
       mockCreate.mockRejectedValue(errorValue);
 
       // Act & Assert
@@ -442,7 +370,9 @@ describe('OpenAIAdapter', () => {
   describe('connect', () => {
     it('should throw a not implemented error', async () => {
       // Arrange
-      const llmRequest = { input: chance.sentence() } as unknown as LlmRequest;
+      const llmRequest = {
+        contents: [{ parts: [{ text: chance.sentence() }] }],
+      } as unknown as LlmRequest;
 
       // Act & Assert
       await expect(adapter.connect(llmRequest)).rejects.toThrow('Not implemented');

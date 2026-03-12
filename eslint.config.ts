@@ -27,7 +27,7 @@ export default defineConfig([
       'no-console': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/consistent-type-imports': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'import/newline-after-import': ['error', { count: 2 }],
       'import/order': [
         'error',

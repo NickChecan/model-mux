@@ -184,6 +184,7 @@ describe('ModelMux', () => {
       // Arrange
       const errorMessage = chance.sentence();
 
+      // eslint-disable-next-line require-yield
       async function* errorStream(): AsyncGenerator<LlmResponse, void> {
         throw new Error(errorMessage);
       }

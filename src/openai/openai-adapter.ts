@@ -78,6 +78,7 @@ export class OpenAIAdapter extends BaseAdapter {
     } satisfies LlmResponse;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async connect(llmRequest: LlmRequest): Promise<BaseLlmConnection> {
     // Implementation for connecting to OpenAI
     throw new Error('Not implemented');

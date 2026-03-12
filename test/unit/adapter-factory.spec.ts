@@ -8,6 +8,7 @@ const mockOpenAIConstructor = vi.fn();
 
 vi.mock('../../src/openai/openai-adapter.js', () => {
   class MockOpenAIAdapter {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(...args: any[]) {
       mockOpenAIConstructor(...args);
     }

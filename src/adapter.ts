@@ -1,6 +1,5 @@
 import type { BaseLlmConnection, LlmRequest, LlmResponse } from '@google/adk';
 
-
 interface AdapterInterface {
   stream(llmRequest: LlmRequest): AsyncGenerator<LlmResponse, void>;
   generate(llmRequest: LlmRequest): Promise<LlmResponse>;

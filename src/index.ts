@@ -3,7 +3,6 @@ import { BaseLlm } from '@google/adk';
 import { AdapterFactory } from './adapter-factory.js';
 import type { BaseAdapter } from './adapter.js';
 
-
 export class ModelMux extends BaseLlm {
   private readonly adapter: BaseAdapter;
 

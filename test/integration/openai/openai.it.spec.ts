@@ -9,7 +9,6 @@ import {
 import dotenv from 'dotenv';
 import { ModelMux } from '../../../src/index.js';
 
-
 const models = [
   'gpt-4o-2024-11-20',
   'gpt-5-2025-08-07',

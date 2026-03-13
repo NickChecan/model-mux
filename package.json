@@ -2,8 +2,25 @@
   "name": "model-mux",
   "version": "1.0.0",
   "description": "Basically Python LiteLLM for TypeScript Google ADK",
-  "license": "ISC",
-  "author": "",
+  "keywords": [
+    "google-adk",
+    "typescript",
+    "litellm",
+    "openai",
+    "anthropic",
+    "chatgpt",
+    "claude",
+    "adapter",
+    "llm-gateway",
+    "ai-gateway",
+    "llm"
+  ],
+  "license": "MIT",
+  "author": "NickChecan",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/The-Nefarious-Developer/model-mux.git"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

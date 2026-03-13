@@ -12,6 +12,8 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      API_KEY_OPENAI: ${{ secrets.API_KEY_OPENAI }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

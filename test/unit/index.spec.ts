@@ -17,29 +17,38 @@ describe('ModelMux', () => {
     connect: vi.fn(),
   } as unknown as BaseAdapter;
 
-  let model: string;
-  let baseUrl: string;
-  let headers: Record<string, string>;
-  let apiKey: string;
+  let options: {
+    model: string;
+    baseUrl: string;
+    headers: Record<string, string>;
+    apiKey: string;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(AdapterFactory.createAdapter).mockReturnValue(fakeAdapter);
 
-    model = chance.word();
-    baseUrl = chance.url();
-    headers = { [chance.word()]: chance.string(), [chance.word()]: chance.string() };
-    apiKey = chance.string();
+    options = {
+      model: chance.word(),
+      baseUrl: chance.url(),
+      headers: { [chance.word()]: chance.string(), [chance.word()]: chance.string() },
+      apiKey: chance.string(),
+    };
   });
 
   describe('constructor', () => {
     it('should pass model, baseUrl, headers, and apiKey to AdapterFactory.createAdapter', () => {
       // Act
-      new ModelMux(model, baseUrl, headers, apiKey);
+      new ModelMux(options);
 
       // Assert
       expect(AdapterFactory.createAdapter).toHaveBeenCalledOnce();
-      expect(AdapterFactory.createAdapter).toHaveBeenCalledWith(model, baseUrl, headers, apiKey);
+      expect(AdapterFactory.createAdapter).toHaveBeenCalledWith(
+        options.model,
+        options.baseUrl,
+        options.headers,
+        options.apiKey,
+      );
     });
   });
 
@@ -49,7 +58,7 @@ describe('ModelMux', () => {
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
       const results: LlmResponse[] = [];
 
       // Act
@@ -67,7 +76,7 @@ describe('ModelMux', () => {
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
       const results: LlmResponse[] = [];
 
       // Act
@@ -86,7 +95,7 @@ describe('ModelMux', () => {
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act
       for await (const _ of mux.generateContentAsync(llmRequest, false)) {
@@ -109,7 +118,7 @@ describe('ModelMux', () => {
 
       vi.mocked(fakeAdapter.stream).mockReturnValue(fakeStream());
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
       const results: LlmResponse[] = [];
 
       // Act
@@ -133,7 +142,7 @@ describe('ModelMux', () => {
 
       vi.mocked(fakeAdapter.stream).mockReturnValue(fakeStream());
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act
       for await (const _ of mux.generateContentAsync(llmRequest, true)) {
@@ -152,7 +161,7 @@ describe('ModelMux', () => {
 
       vi.mocked(fakeAdapter.stream).mockReturnValue(emptyStream());
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
       const results: LlmResponse[] = [];
 
       // Act
@@ -169,7 +178,7 @@ describe('ModelMux', () => {
       const errorMessage = chance.sentence();
       vi.mocked(fakeAdapter.generate).mockRejectedValue(new Error(errorMessage));
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act & Assert
       await expect(async () => {
@@ -190,7 +199,7 @@ describe('ModelMux', () => {
 
       vi.mocked(fakeAdapter.stream).mockReturnValue(errorStream());
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act & Assert
       await expect(async () => {
@@ -205,7 +214,7 @@ describe('ModelMux', () => {
       const mockResponse = { text: chance.sentence() } as unknown as LlmResponse;
       vi.mocked(fakeAdapter.generate).mockResolvedValue(mockResponse);
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act
       for await (const _ of mux.generateContentAsync({} as LlmRequest, false)) {
@@ -224,7 +233,7 @@ describe('ModelMux', () => {
       const mockConnection = { id: chance.guid() } as unknown as BaseLlmConnection;
       vi.mocked(fakeAdapter.connect).mockResolvedValue(mockConnection);
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act
       const result = await mux.connect(llmRequest);
@@ -241,7 +250,7 @@ describe('ModelMux', () => {
       const llmRequest = { prompt: chance.sentence() } as unknown as LlmRequest;
       vi.mocked(fakeAdapter.connect).mockRejectedValue(new Error(errorMessage));
 
-      const mux = new ModelMux(model, baseUrl, headers, apiKey);
+      const mux = new ModelMux(options);
 
       // Act & Assert
       await expect(mux.connect(llmRequest)).rejects.toThrow(errorMessage);

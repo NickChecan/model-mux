@@ -17,9 +17,8 @@ const models = [
   'gpt-5.4-2026-03-05',
 ];
 
-describe.each(models)('openai integration: %s', (llm) => {
-  const host = 'https://api.openai.com/v1';
-  const headers = {};
+describe.each(models)('openai integration: %s', (model) => {
+  const baseUrl = 'https://api.openai.com/v1';
   const appName = 'test-app';
   const userId = 'test-user';
 
@@ -30,20 +29,20 @@ describe.each(models)('openai integration: %s', (llm) => {
   it('should generate an answer to a one-shot ad hoc request', async () => {
     // Arrange
     const apiKey = process.env.API_KEY_OPENAI || '';
-    const sessionId = `test-session-${llm}`;
+    const sessionId = `test-session-${model}`;
 
     const sessionService = new InMemorySessionService();
     await sessionService.createSession({ appName, userId, sessionId });
 
     // Act 1
-    const model = new ModelMux(llm, host, headers, apiKey);
+    const modelMux = new ModelMux({ model, baseUrl, apiKey });
 
     // Act 2
     const agent = new LlmAgent({
       name: 'test-agent',
       description: 'An agent for testing purposes',
       instruction: 'Return "yes" or "no", nothing else.',
-      model: model,
+      model: modelMux,
     });
 
     // Act 3
@@ -70,20 +69,20 @@ describe.each(models)('openai integration: %s', (llm) => {
   it('should stream an answer in multiple chunks to an ad hoc request', async () => {
     // Arrange
     const apiKey = process.env.API_KEY_OPENAI || '';
-    const sessionId = `test-session-stream-${llm}`;
+    const sessionId = `test-session-stream-${model}`;
 
     const sessionService = new InMemorySessionService();
     await sessionService.createSession({ appName, userId, sessionId });
 
     // Act 1
-    const model = new ModelMux(llm, host, headers, apiKey);
+    const modelMux = new ModelMux({ model, baseUrl, apiKey });
 
     // Act 2
     const agent = new LlmAgent({
       name: 'test-agent',
       description: 'An agent for testing purposes',
       instruction: 'Return "yes" or "no", nothing else.',
-      model: model,
+      model: modelMux,
     });
 
     // Act 3

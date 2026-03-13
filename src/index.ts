@@ -3,17 +3,24 @@ import { BaseLlm } from '@google/adk';
 import { AdapterFactory } from './adapter-factory.js';
 import type { BaseAdapter } from './adapter.js';
 
+export interface ModelMuxOptions {
+  model: string;
+  baseUrl: string;
+  headers?: Record<string, string>;
+  apiKey?: string;
+}
+
 export class ModelMux extends BaseLlm {
   private readonly adapter: BaseAdapter;
 
-  constructor(
-    override readonly model: string,
-    private readonly baseUrl: string,
-    private readonly headers: Record<string, string>,
-    private readonly apiKey: string,
-  ) {
-    super({ model });
-    this.adapter = AdapterFactory.createAdapter(model, baseUrl, headers, apiKey);
+  constructor(options: ModelMuxOptions) {
+    super({ model: options.model });
+    this.adapter = AdapterFactory.createAdapter(
+      options.model,
+      options.baseUrl,
+      options.headers ?? {},
+      options.apiKey ?? 'sk-000000000000000000000000000000000000000000000000',
+    );
   }
 
   override async *generateContentAsync(

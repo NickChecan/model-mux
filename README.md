@@ -1,6 +1,6 @@
-# Model Mux
+# ⎇ Model Mux
 
-**Model Mux** is a TypeScript library inspired by Python's LiteLLM, designed for the Google ADK ecosystem. It provides a unified interface to interact with multiple LLM providers (currently OpenAI, with Anthropic planned).
+**Model Mux** is a TypeScript library inspired by Python's LiteLLM, designed for the Google ADK ecosystem. It provides a unified interface to interact with multiple LLM providers *(currently OpenAI, with Anthropic planned)*.
 
 ## Installation
 
@@ -38,5 +38,5 @@ Example using **Anthropic** models:
 ...wip...
 ```
 
-> [!TIP]
+> **Note:** </br>
 > ModelMux also allows the usage of custom headers. Check the [ModelMuxOptions](./src/index.ts) for more details.

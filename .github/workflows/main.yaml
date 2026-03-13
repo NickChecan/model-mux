@@ -26,6 +26,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: verify
+    outputs:
+      released_version: ${{ steps.release_version.outputs.released_version }}
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -45,3 +47,18 @@ jobs:
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Capture released version
+        id: release_version
+        run: echo "released_version=$(npm view model-mux version)" >> "$GITHUB_OUTPUT"
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.released_version != ''
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm install model-mux@${{ needs.release.outputs.released_version }}
+

@@ -1,15 +1,9 @@
-name: Verify
+name: main
 
 on:
   push:
-    paths:
-      - src/**
-      - package.json
   pull_request:
     branches: [main]
-    paths:
-      - src/**
-      - package.json
 
 concurrency:
   group: release-${{ github.ref }}
@@ -22,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run verify
@@ -41,7 +35,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npx semantic-release

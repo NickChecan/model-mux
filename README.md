@@ -44,3 +44,17 @@ Example using **Anthropic** models:
 
 > **Note:** </br>
 > ModelMux also allows the usage of custom headers. Check the [ModelMuxOptions](./src/index.ts) for more details.
+
+## How to Contribute
+
+Contributions are welcome! Here's how you can get involved:
+
+1. **Report Issues:** Found a bug or have a feature request? [Open an issue](https://github.com/The-Nefarious-Developer/model-mux/issues). <br />
+2. **Submit Pull Requests:** Fork the repository, create a new branch, make your changes, and submit a PR. <br />
+3. **Improve Documentation:** Help improve the README or add examples to make setup easier. <br />
+4. **Test & Feedback:** Try Model Mux and provide feedback.
+
+## License
+
+Copyright (c) 2026 Nicholas Coutinho Checan.
+Licensed under the MIT License. See [LICENSE](./LICENSE).

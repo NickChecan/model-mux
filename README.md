@@ -45,6 +45,10 @@ Example using **Anthropic** models:
 > **Note:** </br>
 > ModelMux also allows the usage of custom headers. Check the [ModelMuxOptions](./src/index.ts) for more details.
 
+## Current Limitations
+
+Model Mux currently supports standard request/response generation and streaming responses. Google ADK live connections via `connect()` are not implemented yet.
+
 ## How to Contribute
 
 Contributions are welcome! Here's how you can get involved:

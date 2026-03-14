@@ -1,5 +1,9 @@
 # ⎇ Model Mux
 
+[![main](https://github.com/The-Nefarious-Developer/model-mux/actions/workflows/main.yaml/badge.svg)](https://github.com/The-Nefarious-Developer/model-mux/actions/workflows/main.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+
 **Model Mux** is a TypeScript library inspired by Python's LiteLLM, designed for the Google ADK ecosystem. It provides a unified interface to interact with multiple LLM providers _(currently OpenAI, with Anthropic planned)_.
 
 ## Installation

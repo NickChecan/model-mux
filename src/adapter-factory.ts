@@ -1,4 +1,5 @@
 import type { BaseAdapter } from './adapter.js';
+import { AnthropicAdapter } from './anthropic/anthropic-adapter.js';
 import { OpenAIAdapter } from './openai/openai-adapter.js';
 
 export abstract class AdapterFactory {
@@ -9,8 +10,7 @@ export abstract class AdapterFactory {
     apiKey: string,
   ): BaseAdapter {
     if (model.startsWith('gpt-')) return new OpenAIAdapter(model, baseUrl, headers, apiKey);
-    // if (model.startsWith("claude-"))
-    //     return new AnthropicAdapter(model, baseUrl, headers, apiKey);
+    if (model.startsWith('claude-')) return new AnthropicAdapter(model, baseUrl, headers, apiKey);
     throw new Error(`Unsupported model/provider: ${model}`);
   }
 }

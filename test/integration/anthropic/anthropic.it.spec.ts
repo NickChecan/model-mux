@@ -9,7 +9,11 @@ import {
 import dotenv from 'dotenv';
 import { ModelMux } from '../../../src/index.js';
 
-const models = ['claude-opus-4-6', 'claude-sonnet-4-5-20250929', 'claude-haiku-4-5'];
+const models = [
+  'claude-opus-4-6', 
+  'claude-sonnet-4-5-20250929', 
+  'claude-haiku-4-5'
+];
 
 describe.each(models)('anthropic integration: %s', (model) => {
   const baseUrl = 'https://api.anthropic.com';

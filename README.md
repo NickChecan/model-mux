@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
-**Model Mux** is a TypeScript library inspired by Python's LiteLLM, designed for the Google ADK ecosystem. It provides a unified interface to interact with multiple LLM providers _(currently OpenAI, with Anthropic planned)_.
+**Model Mux** is a TypeScript library inspired by Python's LiteLLM, designed for the Google ADK ecosystem. It provides a unified interface to interact with multiple LLM providers _(currently OpenAI and Anthropic)_.
 
 ## Installation
 
@@ -36,10 +36,25 @@ const agent = new LlmAgent({
 });
 ```
 
+
 Example using **Anthropic** models:
 
 ```typescript
-...wip...
+import { LlmAgent } from '@google/adk';
+import { ModelMux } from 'model-mux';
+
+const model = 'claude-opus-4-6';
+const baseUrl = 'https://api.anthropic.com';
+const apiKey = process.env.ANTHROPIC_API_KEY;
+
+const modelMux = new ModelMux({ model, baseUrl, apiKey });
+
+const agent = new LlmAgent({
+  name: 'anthropic-agent',
+  description: 'An agent for Anthropic Claude',
+  instruction: 'Be helpful and concise.',
+  model: modelMux,
+});
 ```
 
 > **Note:** </br>

@@ -1,9 +1,11 @@
 import Chance from 'chance';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AdapterFactory } from '../../src/adapter-factory.js';
+import { AnthropicAdapter } from '../../src/anthropic/anthropic-adapter.js';
 import { OpenAIAdapter } from '../../src/openai/openai-adapter.js';
 
 const mockOpenAIConstructor = vi.fn();
+const mockAnthropicConstructor = vi.fn();
 
 vi.mock('../../src/openai/openai-adapter.js', () => {
   class MockOpenAIAdapter {
@@ -13,6 +15,16 @@ vi.mock('../../src/openai/openai-adapter.js', () => {
     }
   }
   return { OpenAIAdapter: MockOpenAIAdapter };
+});
+
+vi.mock('../../src/anthropic/anthropic-adapter.js', () => {
+  class MockAnthropicAdapter {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    constructor(...args: any[]) {
+      mockAnthropicConstructor(...args);
+    }
+  }
+  return { AnthropicAdapter: MockAnthropicAdapter };
 });
 
 describe('AdapterFactory', () => {
@@ -43,6 +55,18 @@ describe('AdapterFactory', () => {
       expect(mockOpenAIConstructor).toHaveBeenCalledWith(model, baseUrl, headers, apiKey);
     });
 
+    it("should create an AnthropicAdapter when model starts with 'claude-'", () => {
+      // Arrange
+      const model = `claude-${chance.word()}`;
+
+      // Act
+      AdapterFactory.createAdapter(model, baseUrl, headers, apiKey);
+
+      // Assert
+      expect(mockAnthropicConstructor).toHaveBeenCalledOnce();
+      expect(mockAnthropicConstructor).toHaveBeenCalledWith(model, baseUrl, headers, apiKey);
+    });
+
     it('should return an instance of OpenAIAdapter for gpt- models', () => {
       // Arrange
       const model = `gpt-${chance.word()}`;
@@ -52,6 +76,17 @@ describe('AdapterFactory', () => {
 
       // Assert
       expect(result).toBeInstanceOf(OpenAIAdapter);
+    });
+
+    it('should return an instance of AnthropicAdapter for claude- models', () => {
+      // Arrange
+      const model = `claude-${chance.word()}`;
+
+      // Act
+      const result = AdapterFactory.createAdapter(model, baseUrl, headers, apiKey);
+
+      // Assert
+      expect(result).toBeInstanceOf(AnthropicAdapter);
     });
 
     it('should pass model, baseUrl, headers, and apiKey to OpenAIAdapter', () => {
@@ -103,6 +138,7 @@ describe('AdapterFactory', () => {
 
       // Assert
       expect(mockOpenAIConstructor).not.toHaveBeenCalled();
+      expect(mockAnthropicConstructor).not.toHaveBeenCalled();
     });
 
     it("should handle model 'gpt-' with no suffix", () => {
@@ -115,6 +151,18 @@ describe('AdapterFactory', () => {
       // Assert
       expect(mockOpenAIConstructor).toHaveBeenCalledOnce();
       expect(mockOpenAIConstructor).toHaveBeenCalledWith(model, baseUrl, headers, apiKey);
+    });
+
+    it("should handle model 'claude-' with no suffix", () => {
+      // Arrange
+      const model = 'claude-';
+
+      // Act
+      AdapterFactory.createAdapter(model, baseUrl, headers, apiKey);
+
+      // Assert
+      expect(mockAnthropicConstructor).toHaveBeenCalledOnce();
+      expect(mockAnthropicConstructor).toHaveBeenCalledWith(model, baseUrl, headers, apiKey);
     });
   });
 });

@@ -36,7 +36,6 @@ const agent = new LlmAgent({
 });
 ```
 
-
 Example using **Anthropic** models:
 
 ```typescript

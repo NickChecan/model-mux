@@ -2,8 +2,6 @@ name: main
 
 on:
   push:
-  pull_request:
-    branches: [main]
 
 concurrency:
   group: release-${{ github.ref }}
@@ -14,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       API_KEY_OPENAI: ${{ secrets.API_KEY_OPENAI }}
+      API_KEY_CLAUDE: ${{ secrets.API_KEY_CLAUDE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

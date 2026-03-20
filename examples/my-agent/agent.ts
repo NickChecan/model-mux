@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
 import {FunctionTool, LlmAgent} from '@google/adk';
 import {z} from 'zod';
 import { ModelMux } from 'model-mux';
+
+dotenv.config();
 
 /* Mock tool implementation */
 const getCurrentTime = new FunctionTool({
@@ -17,7 +20,7 @@ const getCurrentTime = new FunctionTool({
 const modelMux = new ModelMux({ 
   model: 'gpt-5.4-2026-03-05', 
   baseUrl: 'https://api.openai.com/v1', 
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.API_KEY_OPENAI
 });
 
 export const rootAgent = new LlmAgent({

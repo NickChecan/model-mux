@@ -42,6 +42,7 @@
     "verify": "npm run format:check && npm run lint && npm run test:all"
   },
   "devDependencies": {
+    "@google/adk": "^0.5.0",
     "@eslint/js": "^9.39.4",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
@@ -63,9 +64,11 @@
     "typescript-eslint": "^8.57.0",
     "vitest": "^4.0.18"
   },
+  "peerDependencies": {
+    "@google/adk": "^0.5.0"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "0.79.0",
-    "@google/adk": "^0.4.0",
     "openai": "^6.25.0"
   }
 }

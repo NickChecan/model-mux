@@ -14,7 +14,7 @@
   "dependencies": {
     "@google/adk": "^0.5.0",
     "dotenv": "^17.3.1",
-    "model-mux": "^1.0.4",
+    "model-mux": "^1.0.6",
     "zod": "^4.3.6"
   },
   "devDependencies": {

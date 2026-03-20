@@ -1,0 +1,23 @@
+{
+  "name": "my-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "agent.ts",
+  "scripts": {
+    "inspect:cli": "npx adk run agent.ts",
+    "inspect:web": "npx adk web"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/adk": "^0.5.0",
+    "dotenv": "^17.3.1",
+    "model-mux": "^1.0.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@google/adk-devtools": "^0.5.0"
+  }
+}

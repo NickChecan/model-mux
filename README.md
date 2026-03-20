@@ -61,6 +61,8 @@ const agent = new LlmAgent({
 > **Note:** </br>
 > ModelMux also allows the usage of custom headers. Check the [ModelMuxOptions](./src/index.ts) for more details.
 
+For a complete agent example, see [examples/my-agent](./examples/my-agent/), which includes a working Google ADK agent implementation using **Model-Mux**.
+
 ## Current Limitations
 
 Model Mux currently supports standard request/response generation and streaming responses. Google ADK live connections via `connect()` are not implemented yet.

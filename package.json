@@ -1,6 +1,6 @@
 {
   "name": "model-mux",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Basically Python LiteLLM for TypeScript Google ADK",
   "keywords": [
     "google-adk",

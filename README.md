@@ -1,5 +1,7 @@
 # ⎇ Model Mux
 
+[![npm version](https://img.shields.io/npm/v/model-mux?logo=npm)](https://www.npmjs.com/package/model-mux)
+[![npm downloads](https://img.shields.io/npm/dt/model-mux)](https://www.npmjs.com/package/model-mux)
 [![pipeline](https://github.com/The-Nefarious-Developer/model-mux/actions/workflows/main.yaml/badge.svg)](https://github.com/The-Nefarious-Developer/model-mux/actions/workflows/main.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
